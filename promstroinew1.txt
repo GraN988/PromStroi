@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ПромСтрой - Продажа бассейнов</title>
+  <style>
+    /* Сброс и базовые стили */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f7fa;
+      margin: 0;
+      padding: 40px 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #0077b6;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    h2 {
+      color: #023e8a;
+      font-size: 2rem;
+      margin-top: 48px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #0077b6;
+      padding-bottom: 6px;
+    }
+    p, ul {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: #444;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    ul li {
+      margin-bottom: 10px;
+    }
+    a {
+      color: #0077b6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    /* Галерея */
+    .gallery {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .gallery-item {
+      flex: 1 1 180px;
+      cursor: pointer;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      background: white;
+      transition: transform 0.3s ease;
+      text-align: center;
+      user-select: none;
+    }
+    .gallery-item:hover {
+      transform: scale(1.05);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 1px solid #ddd;
+    }
+    .gallery-caption {
+      padding: 10px 6px;
+      font-weight: 700;
+      color: #0077b6;
+      font-size: 1rem;
+    }
+    /* Лайтбокс */
+    #lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+    #lightbox.active {
+      display: flex;
+    }
+    #lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+    #lightbox img {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      display: block;
+      border-bottom: 1px solid #ddd;
+    }
+    #lightbox-caption {
+      padding: 14px 24px;
+      font-size: 1.2rem;
+      color: #023e8a;
+      text-align: center;
+      font-weight: 600;
+    }
+    /* Навигация */
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 3rem;
+      color: #0077b6;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      line-height: 56px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+    .lightbox-nav:hover {
+      background: #0077b6;
+      color: white;
+    }
+    #lightbox-prev {
+      left: 12px;
+    }
+    #lightbox-next {
+      right: 12px;
+    }
+    /* Кнопка закрытия */
+    #lightbox-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      font-size: 2.5rem;
+      color: #0077b6;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      width: 48px; height: 48px;
+      line-height: 48px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 0 8px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+    #lightbox-close:hover {
+      background: #0077b6;
+      color: white;
+    }
+    /* Форма */
+    form {
+      margin-top: 40px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #e0f7fa;
+      padding: 28px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 119, 182, 0.3);
+    }
+    form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #023e8a;
+      font-size: 1.1rem;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      border: 2px solid #b0bec5;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+      font-family: inherit;
+    }
+    form input:focus, form textarea:focus {
+      border-color: #0077b6;
+      outline: none;
+    }
+    form button {
+      background-color: #0077b6;
+      color: white;
+      border: none;
+      padding: 14px 0;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 700;
+      transition: background-color 0.3s ease;
+    }
+    form button:hover {
+      background-color: #023e8a;
+    }
+    /* Сообщение об успешной отправке */
+    #form-message {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: 700;
+      color: green;
+      display: none;
+    }
+    /* Адаптив */
+    @media(max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
+      h2 {
+        font-size: 1.6rem;
+      }
+      .gallery-item {
+        flex: 1 1 45%;
+      }
+    }
+    @media(max-width: 400px) {
+      .gallery-item {
+        flex: 1 1 100%;
+      }
+      form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ПромСтрой - Продажа бассейнов</h1>
+    <p>
+      Компания <b>ПромСтрой</b> - профессионалы в продаже и установке бассейнов в Москве и Велегоже.<br />
+      Мы предлагаем полный спектр услуг: подбор, доставка, монтаж и обслуживание бассейнов для дома, дачи и бизнеса.
+    </p>
+
+    <h2>Наши услуги</h2>
+    <ul>
+      <li>Продажа каркасных и стационарных бассейнов</li>
+      <li>Проектирование и монтаж бассейнов «под ключ»</li>
+      <li>Обслуживание и ремонт бассейнов</li>
+      <li>Поставка оборудования и аксессуаров</li>
+      <li>Консультации и подбор оптимального решения</li>
+    </ul>
+
+    <h2>Виды бассейнов</h2>
+    <ul>
+      <li><b>Каркасные бассейны</b> - быстрое и экономичное решение для дачи</li>
+      <li><b>Композитные бассейны</b> - долговечные и стильные</li>
+      <li><b>Бетонные бассейны</b> - индивидуальные проекты любой сложности</li>
+      <li><b>Детские бассейны</b> - безопасные и удобные для малышей</li>
+      <li><b>Спа-бассейны</b> - для отдыха и релаксации</li>
+    </ul>
+
+    <h2>Галерея бассейнов</h2>
+    <div class="gallery" aria-label="Галерея бассейнов">
+      <!-- Заменяйте src, alt и подписи ниже на свои фото и описания -->
+      <div class="gallery-item" tabindex="0" data-type="каркасные">
+        <img src="https://24intex.ru/upload/iblock/01f/mcph88stdnvunwhpat9k3ntr7vg7dwb2/8b1c9775_3800_11e9_b2f4_00155d463506_8b1c9779_3800_11e9_b2f4_00155d463506.resize1.jpg" alt="Каркасный бассейн" />
+        <div class="gallery-caption">Каркасные бассейны</div>
+      </div>
+      <div class="gallery-item" tabindex="0" data-type="бетонные">
+        <img src="https://бюро-бассейнов.рф/wp-content/uploads/2018/09/posledniy.jpg" alt="Бетонный бассейн" />
+        <div class="gallery-caption">Бетонные бассейны</div>
+      </div>
+      <div class="gallery-item" tabindex="0" data-type="композитные">
+        <img src="https://composit-pools.ru/photo_2022-08-26_11-59-45.jpg" alt="Композитный бассейн" />
+        <div class="gallery-caption">Композитные бассейны</div>
+      </div>
+      <div class="gallery-item" tabindex="0" data-type="детские">
+        <img src="https://cdn2.static1-sima-land.com/content/55831.jpg" alt="Детский бассейн" />
+        <div class="gallery-caption">Детские бассейны</div>
+      </div>
+      <div class="gallery-item" tabindex="0" data-type="спа">
+        <img src="https://pool-spa.ru/wa-data/public/shop/products/59/78/17859/images/17245/SPA_basseyn_Treesse_Muse_280x235x98_sm_1.970.jpg" alt="Спа-бассейн" />
+        <div class="gallery-caption">Спа-бассейны</div>
+      </div>
+    </div>
+
+    <div class="contact" style="margin-top: 48px;">
+      <h2>Контакты</h2>
+      <p><b>Адрес:</b> Москва, Велегож</p>
+      <p><b>Телефон:</b> <a href="tel:+79773238730">+7 (977) 323-87-30</a></p>
+      <p><b>WhatsApp:</b> <a href="https://wa.me/79773238730" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a></p>
+    </div>
+
+    <form id="contactForm" action="https://formspree.io/f/mdkglgee" method="POST">
+      <h2>Свяжитесь с нами</h2>
+      <label for="name">Ваше имя</label>
+      <input type="text" id="name" name="name" placeholder="Введите ваше имя" required />
+
+      <label for="phone">Телефон</label>
+      <input type="tel" id="phone" name="phone" placeholder="+7 (___) ___-__-__" pattern="^\+?\d{6,15}$" required />
+
+      <label for="message">Сообщение</label>
+      <textarea id="message" name="message" rows="4" placeholder="Ваше сообщение" required></textarea>
+
+      <!-- Скрытый input для защиты от спама (honeypot) -->
+      <input type="text" name="_gotcha" style="display:none" />
+
+      <button type="submit">Отправить</button>
+      <p id="form-message"></p>
+    </form>
+  </div>
+
+  <!-- Лайтбокс -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-caption" tabindex="-1">
+    <div id="lightbox-content">
+      <span id="lightbox-close" aria-label="Закрыть">&times;</span>
+      <span id="lightbox-prev" class="lightbox-nav" aria-label="Предыдущее">&#10094;</span>
+      <img id="lightbox-image" src="" alt="" />
+      <span id="lightbox-next" class="lightbox-nav" aria-label="Следующее">&#10095;</span>
+      <div id="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <script>
+    // Галерея - заменяйте ссылки и подписи здесь на свои фото
+    const galleryData = {
+      "каркасные": [
+        { src: "https://olbol.ru/userfiles/%D0%9A%D1%80%D1%83%D0%B3%D0%BB%D1%8B%D0%B5%20%D0%BA%D0%B0%D1%80%20%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%D1%8B.jpg", alt: "Каркасный бассейн у дома", caption: "Каркасный бассейн у дома" },
+        { src: "https://vse-bas.ru/u/pool1-1024x759.jpg", alt: "Каркасный бассейн на даче", caption: "Каркасный бассейн на даче" },
+        { src: "https://kazan.sports-expert.ru/image/cache/data/bassejni/intex2/26374-1-1000x600.jpg", alt: "Каркасный бассейн большой", caption: "Большой каркасный бассейн" }
+      ],
+      "бетонные": [
+        { src: "https://бюро-бассейнов.рф/wp-content/uploads/2018/09/posledniy.jpg", alt: "Современный бетонный бассейн", caption: "Современный бетонный бассейн" },
+        { src: "https://happyhouse.guru/uploads/posts/2023-03/1678646707_happyhouse-guru-p-podsvetka-basseina-svoimi-rukami-bassein-p-1.jpg", alt: "Бетонный бассейн с подсветкой", caption: "Бетонный бассейн с подсветкой" },
+        { src: "https://happyhouse.guru/uploads/posts/2023-03/1678856651_happyhouse-guru-p-vodopad-bassein-bassein-pinterest-14.jpg", alt: "Большой бетонный бассейн", caption: "Бетонный бассейн с водопадом" }
+      ],
+      "композитные": [
+        { src: "https://composit.by/lightning.jpg", alt: "Композитный бассейн с подсветкой", caption: "Композитный бассейн с подсветкой" },
+        { src: "https://compass-pools.ru/wp-content/uploads/2022/05/java-125-00.jpg", alt: "Стильный композитный бассейн", caption: "Стильный композитный бассейн" },
+        { src: "https://st37.stpulscen.ru/images/product/452/947/263_original.jpg", alt: "Композитный бассейн на заднем дворе", caption: "Композитный бассейн на заднем дворе" }
+      ],
+      "детские": [
+        { src: "https://cdn2.static1-sima-land.com/content/55831.jpg", alt: "Детский бассейн с игрушками", caption: "Детский бассейн с игрушками" },
+        { src: "https://ir.ozone.ru/s3/multimedia-k/c1000/6316203608.jpg", alt: "Надувной детский бассейн", caption: "Яркий детский бассейн" },
+        { src: "https://na-dache.pro/uploads/posts/2021-05/1621361626_29-p-detskii-ugolok-na-dache-s-basseinom-34.jpg", alt: "Безопасный детский бассейн", caption: "Безопасный детский бассейн" }
+      ],
+      "спа": [
+        { src: "https://koprino.com/wp-content/uploads/wellness-center-v-bukhte-koprino-09.jpg", alt: "Спа-бассейн на террасе", caption: "Спа-бассейн на террасе" },
+        { src: "https://бассейны-спа.рф/upload/111/upload/iblock/93b/93b9656e2305915d394950b60e1844f6.jpg", alt: "Расслабляющий спа-бассейн", caption: "Переносной спа-бассейн" },
+        { src: "https://avatars.mds.yandex.net/get-altay/4719974/2a0000017a865da645fa34eb243b2421ead7/L_height", alt: "Встроенный спа-бассейн с гидромассажем", caption: "Спа-бассейн с гидромассажем" }
+      ]
+    };
+
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+
+    let currentType = null;
+    let currentIndex = 0;
+
+    function openLightbox(type) {
+      currentType = type;
+      currentIndex = 0;
+      updateLightbox();
+      lightbox.classList.add('active');
+      lightbox.focus();
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      currentType = null;
+      currentIndex = 0;
+    }
+
+    function updateLightbox() {
+      const images = galleryData[currentType];
+      if (!images) return;
+      const image = images[currentIndex];
+      lightboxImage.src = image.src;
+      lightboxImage.alt = image.alt;
+      lightboxCaption.textContent = image.caption;
+    }
+
+    function showPrev() {
+      const images = galleryData[currentType];
+      if (!images) return;
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateLightbox();
+    }
+
+    function showNext() {
+      const images = galleryData[currentType];
+      if (!images) return;
+      currentIndex = (currentIndex + 1) % images.length;
+      updateLightbox();
+    }
+
+    galleryItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const type = item.getAttribute('data-type');
+        openLightbox(type);
+      });
+      item.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const type = item.getAttribute('data-type');
+          openLightbox(type);
+        }
+      });
+    });
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', showPrev);
+    lightboxNext.addEventListener('click', showNext);
+
+    // Закрытие по клику вне картинки
+    lightbox.addEventListener('click', e => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    // Клавиши навигации в лайтбоксе
+    document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('active')) return;
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        showPrev();
+      } else if (e.key === 'ArrowRight') {
+        showNext();
+      }
+    });
+
+    // Обработка формы с Formspree
+    const form = document.getElementById('contactForm');
+    const formMessage = document.getElementById('form-message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      // Простая валидация телефона (можно улучшить)
+      const phone = formData.get('phone').replace(/\D/g, '');
+      if (phone.length < 6) {
+        alert('Пожалуйста, введите корректный номер телефона.');
+        return;
+      }
+
+      try {
+        const response = await fetch(form.action, {
+          method: form.method,
+          headers: { 'Accept': 'application/json' },
+          body: formData
+        });
+
+        if (response.ok) {
+          formMessage.style.color = 'green';
+          formMessage.textContent = 'Спасибо! Ваше сообщение отправлено.';
+          form.reset();
+        } else {
+          const data = await response.json();
+          if (data.errors) {
+            formMessage.style.color = 'red';
+            formMessage.textContent = data.errors.map(error => error.message).join(', ');
+          } else {
+            formMessage.style.color = 'red';
+            formMessage.textContent = 'Ошибка отправки. Попробуйте позже.';
+          }
+        }
+      } catch (error) {
+        formMessage.style.color = 'red';
+        formMessage.textContent = 'Ошибка сети. Попробуйте позже.';
+      }
+    });
+  </script>
+</body>
+</html>
